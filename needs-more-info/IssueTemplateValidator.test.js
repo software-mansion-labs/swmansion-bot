@@ -63,6 +63,24 @@ describe('IssueTemplateValidator', () => {
 
       expect(issueTemplateValidator._sectionExists('Reproduction')).toBe(false);
     });
+
+    it('should correctly recognize section with special characters', () => {
+      const issueBody = `
+      ## A link to a [Gist](https://gist.github.com/) that reproduces the bug.
+    
+      No repro yet.
+      `;
+
+      const issueTemplateValidator = new IssueTemplateValidator(issueBody, [
+        'A link to a [Gist](https://gist.github.com/) that reproduces the bug.',
+      ]);
+
+      expect(
+        issueTemplateValidator._sectionExists(
+          'A link to a [Gist](https://gist.github.com/) that reproduces the bug.'
+        )
+      ).toBe(true);
+    });
   });
 
   describe('_isSectionEmpty', () => {
