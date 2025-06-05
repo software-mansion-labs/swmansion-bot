@@ -8,6 +8,7 @@ class IssueTemplateValidator {
     this.requiredSections = requiredSections;
   }
 
+  // Uses regex from `escape` https://github.com/LvChengbin/escape/blob/master/src/regexp.js
   _normalizeSection(section) {
     return section.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
   }
