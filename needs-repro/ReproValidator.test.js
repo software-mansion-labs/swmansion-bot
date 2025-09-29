@@ -172,6 +172,110 @@ describe('ReproValidator', () => {
 
       expect(reproValidator._hasRepo(issueBody)).toBe(true);
     });
+
+    it('should return false when given a gist instead of a repo url', () => {
+      const issueBody = `https://gist.github.com/kacperkapusciak/a2595d2f2f85c4524f470fc343787450`;
+      const reproValidator = new ReproValidator('kacperkapusciak');
+
+      expect(reproValidator._hasRepo(issueBody)).toBe(false);
+    });
+  });
+
+  describe('_hasGist', () => {
+    it('should return false when issue body is empty', () => {
+      const issueBody = ``;
+      const reproValidator = new ReproValidator('kacperkapusciak');
+
+      expect(reproValidator._hasGist(issueBody)).toBe(false);
+    });
+
+    it('should return false when issue body is null', () => {
+      const issueBody = null;
+      const reproValidator = new ReproValidator('kacperkapusciak');
+
+      expect(reproValidator._hasGist(issueBody)).toBe(false);
+    });
+
+    it('should return false when issue body is undefined', () => {
+      const issueBody = undefined;
+      const reproValidator = new ReproValidator('kacperkapusciak');
+
+      expect(reproValidator._hasGist(issueBody)).toBe(false);
+    });
+
+    it('should return false when no gist', () => {
+      const issueBody = `## Reproduction`;
+      const reproValidator = new ReproValidator('kacperkapusciak');
+
+      expect(reproValidator._hasGist(issueBody)).toBe(false);
+    });
+
+    it('should return true when gist provided', () => {
+      const issueBody = `
+      ## Reproduction
+      https://gist.github.com/kacperkapusciak/a2595d2f2f85c4524f470fc343787450
+    `;
+      const reproValidator = new ReproValidator('kacperkapusciak');
+
+      expect(reproValidator._hasGist(issueBody)).toBe(true);
+    });
+
+    it('should return true when gist is provided in a comment', () => {
+      const issueBody = `
+      https://gist.github.com/someone/a2595d2f2f85c4524f470fc343787450
+    `;
+      const reproValidator = new ReproValidator('kacperkapusciak', 'someone');
+
+      expect(reproValidator._hasGist(issueBody)).toBe(true);
+    });
+
+    it("should return false when provided gist link isn't a repo created by issue author or commenter", () => {
+      const issueBody = `
+      https://gist.github.com/software-mansion/a2595d2f2f85c4524f470fc343787450
+    `;
+      const reproValidator = new ReproValidator('kacperkapusciak', 'someone');
+
+      expect(reproValidator._hasGist(issueBody)).toBe(false);
+    });
+
+    it('should return true when both gist and snack provided', () => {
+      const issueBody = `
+      ## Reproduction
+      https://snack.expo.dev/@kacperkapusciak/example
+      https://gist.github.com/kacperkapusciak/a2595d2f2f85c4524f470fc343787450
+    `;
+      const reproValidator = new ReproValidator('kacperkapusciak');
+
+      expect(reproValidator._hasGist(issueBody)).toBe(true);
+    });
+
+    it('should return true when only gist and nothing else is provided', () => {
+      const issueBody = `https://gist.github.com/kacperkapusciak/a2595d2f2f85c4524f470fc343787450/`;
+      const reproValidator = new ReproValidator('kacperkapusciak');
+
+      expect(reproValidator._hasGist(issueBody)).toBe(true);
+    });
+
+    it('should return true when real life example gist is provided', () => {
+      const issueBody = `This is my repro for this issue: https://gist.github.com/kacperkapusciak/a2595d2f2f85c4524f470fc343787450/`;
+      const reproValidator = new ReproValidator('kacperkapusciak');
+
+      expect(reproValidator._hasGist(issueBody)).toBe(true);
+    });
+
+    it('should return true when gist is provided in a url', () => {
+      const issueBody = `[gist.github.com/kacperkapusciak/a2595d2f2f85c4524f470fc343787450](https://gist.github.com/kacperkapusciak/a2595d2f2f85c4524f470fc343787450)`;
+      const reproValidator = new ReproValidator('kacperkapusciak');
+
+      expect(reproValidator._hasGist(issueBody)).toBe(true);
+    });
+
+    it('should return false when given a repo instead of a gist', () => {
+      const issueBody = `https://github.com/kacperkapusciak/amazing-repo`;
+      const reproValidator = new ReproValidator('kacperkapusciak');
+
+      expect(reproValidator._hasGist(issueBody)).toBe(false);
+    });
   });
 
   describe('_hasFunctions', () => {
@@ -949,11 +1053,22 @@ describe('ReproValidator', () => {
       expect(reproValidator.isReproValid(issueBody)).toBe(true);
     });
 
-    it('should return true when both repo and snack provided', () => {
+    it('should return true when gist provided', () => {
+      const issueBody = `
+      ## Reproduction
+      https://gist.github.com/kacperkapusciak/a2595d2f2f85c4524f470fc343787450
+    `;
+      const reproValidator = new ReproValidator('kacperkapusciak');
+
+      expect(reproValidator.isReproValid(issueBody)).toBe(true);
+    });
+
+    it('should return true when both repo, gist and snack provided', () => {
       const issueBody = `
       ## Reproduction
       https://snack.expo.dev/@kacperkapusciak/example
       https://github.com/kacperkapusciak/my-amazing-repro
+      https://gist.github.com/kacperkapusciak/a2595d2f2f85c4524f470fc343787450
     `;
       const reproValidator = new ReproValidator('kacperkapusciak');
 

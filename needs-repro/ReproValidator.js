@@ -17,6 +17,15 @@ class ReproValidator {
     return normalizedBody.search(regexp) !== -1;
   }
 
+  _hasGist(body) {
+    const normalizedBody = normalizeIssue(body || '');
+    const regexp = new RegExp(
+      `https?:\\/\\/gist\\.github\\.com\\/(${this.author}|${this.commenter})\\/[^/]+\\/?\\s?`,
+      'gm'
+    );
+    return normalizedBody.search(regexp) !== -1;
+  }
+
   // Code adopted from https://github.com/react-navigation/react-navigation/blob/main/.github/workflows/check-repro.yml#L22
   _hasSnack(body) {
     const normalizedBody = normalizeIssue(body || '');
@@ -108,7 +117,12 @@ class ReproValidator {
   }
 
   isReproValid(body) {
-    return this._hasCodeSnippet(body) || this._hasSnack(body) || this._hasRepo(body);
+    return (
+      this._hasCodeSnippet(body) ||
+      this._hasSnack(body) ||
+      this._hasRepo(body) ||
+      this._hasGist(body)
+    );
   }
 }
 
